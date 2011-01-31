@@ -19,12 +19,12 @@ class DiskModule(func_module.FuncModule):
 
     def usage(self, partition=None):
         """
-        Returns the results of df -P
+        Returns the results of df -PT
         """
         results = {}
         # splitting the command variable out into a list does not seem to function
         # in the tests I have run
-        command = '/bin/df -P'
+        command = '/bin/df -PT'
         if (partition):
             command += ' %s' % (partition)
         cmdref = sub_process.Popen(command, stdout=sub_process.PIPE,
@@ -34,11 +34,12 @@ class DiskModule(func_module.FuncModule):
         for disk in stdout.split('\n'):
             if (disk.startswith('Filesystem') or not disk):
                 continue
-            (device, total, used, available, percentage, mount) = disk.split()
+            (device, fstype, total, used, available, percentage, mount) = disk.split()
             results[mount] = {'device':device,
                               'total':str(total),
                               'used':str(used),
                               'available':str(available),
+                              'fstype':str(fstype),
                               'percentage':int(percentage[:-1])}
         return results
 
